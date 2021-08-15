@@ -61,6 +61,7 @@ if args.variant == 'vanilla':
     ### [part c]: Make some model here
 
     ### START CODE HERE
+    mconf.synthesizer = False
     model = model.GPT(mconf)
     model = model.to(device)
     ### END CODE HERE
@@ -72,6 +73,9 @@ elif args.variant == 'synthesizer':
     ### [part g]: Make some other model here
 
     ### START CODE HERE
+    mconf.synthesizer = True
+    model = model.Block(mconf)
+    model = model.to(device)
     ### END CODE HERE
     pass
 

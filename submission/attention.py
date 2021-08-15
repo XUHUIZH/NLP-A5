@@ -93,6 +93,22 @@ class SynthesizerAttention(nn.Module):
         ###       How do these map to the matrices in the handout?
 
         ### START CODE HERE
+        B, T, C = x.size()
+
+        a = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        a = nn.ReLU()(a)
+        b = torch.matmul(a, self.w2) + self.b2#(B, nh, T, hs)
+
+        b = b.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf')) # todo: just use float('-inf') instead?
+        b = F.softmax(b, dim=-1)
+        b = self.attn_drop(b)
+        
+        v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
+        y = b @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+        y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+
+        y = self.resid_drop(self.proj(y))
+        return y
         ### END CODE HERE
 
         raise NotImplementedError
