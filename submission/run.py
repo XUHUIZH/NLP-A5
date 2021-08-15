@@ -100,6 +100,14 @@ if args.function == 'pretrain':
     ###     num_workers=4
 
     ### START CODE HERE
+    text = open(args.pretrain_corpus_path, encoding='utf-8').read()
+    train_dataset = dataset.CharCorruptionDataset(text, block_size)
+    tconf = trainer.TrainerConfig(max_epochs=650, batch_size=128, learning_rate=6e-3,
+                      lr_decay=True, warmup_tokens=512*20, final_tokens=200*len(pretrain_dataset)*block_size,
+                      num_workers=4)
+    trainer = trainer.Trainer(model, train_dataset, None, tconf)
+    trainer.train()
+    torch.save(model.state_dict(), args.writing_params_path) 
     ### END CODE HERE
     pass
 
