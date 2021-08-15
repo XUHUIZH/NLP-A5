@@ -74,7 +74,7 @@ elif args.variant == 'synthesizer':
 
     ### START CODE HERE
     mconf.synthesizer = True
-    model = model.Block(mconf)
+    model = model.GPT(mconf)
     model = model.to(device)
     ### END CODE HERE
     pass
