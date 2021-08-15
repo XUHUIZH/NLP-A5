@@ -96,9 +96,10 @@ class SynthesizerAttention(nn.Module):
         B, T, C = x.size()
 
         a = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        breakpoint()
         a = nn.ReLU()(a)
         b = torch.matmul(a, self.w2) + self.b2#(B, nh, T, hs)*(hs,block_size-1)=(B, nh, T, block_size-1)
-        breakpoint()
+        
         b = b.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf')) # todo: just use float('-inf') instead?
         b = F.softmax(b, dim=-1)#(B, nh, T, block_size-1)
         b = self.attn_drop(b)
