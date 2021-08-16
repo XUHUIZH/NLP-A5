@@ -96,16 +96,15 @@ class SynthesizerAttention(nn.Module):
         B, T, C = x.size()
 
         a = self.w1(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-        breakpoint()
         a = nn.ReLU()(a)
         b = torch.matmul(a, self.w2) + self.b2#(B, nh, T, hs)*(hs,block_size-1)=(B, nh, T, block_size-1)
         
-        b = b.masked_fill(self.mask[:,:,:T,:T] == 0, float('-inf')) # todo: just use float('-inf') instead?
+        b = b.masked_fill(self.mask[:,:,:T,:self.block_size-1] == 0, float('-inf')) # todo: just use float('-inf') instead?
         b = F.softmax(b, dim=-1)#(B, nh, T, block_size-1)
         b = self.attn_drop(b)
         
-        v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
-        y = b @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+        v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)#(B,nh,T,hs)
+        y = b @ v # (B, nh,T, block_size-1) x (B, nh, T, hs) -> (B, nh, block_size-1, hs)
         y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
 
         y = self.resid_drop(self.proj(y))
