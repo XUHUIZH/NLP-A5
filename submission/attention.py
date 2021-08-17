@@ -104,7 +104,7 @@ class SynthesizerAttention(nn.Module):
         b = self.attn_drop(b)
         
         v = self.value(x).view(B, T, self.n_head, C // self.n_head).transpose(1, 2)#(B,nh,T,hs)
-        breakpoint()
+        #breakpoint()
         y = b @ v # (B, nh,T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
         y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
 
